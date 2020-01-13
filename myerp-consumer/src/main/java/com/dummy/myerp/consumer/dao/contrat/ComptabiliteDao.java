@@ -1,10 +1,12 @@
 package com.dummy.myerp.consumer.dao.contrat;
 
+import java.util.Date;
 import java.util.List;
 
 import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
 import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
 import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
+import com.dummy.myerp.model.bean.comptabilite.SequenceEcritureComptable;
 import com.dummy.myerp.technical.exception.NotFoundException;
 
 
@@ -26,6 +28,15 @@ public interface ComptabiliteDao {
      */
     List<JournalComptable> getListJournalComptable();
 
+    // ==================== SequenceEcritureComptable ====================
+
+    /**
+     * Renvoie la séquence comptable de journal {@code journal_code} et d'année {@code annee}
+     * @param code le code du journal
+     * @param date l'année concernée
+     * @return {@link SequenceEcritureComptable}
+     */
+    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Date date);
 
     // ==================== EcritureComptable ====================
 
@@ -80,4 +91,5 @@ public interface ComptabiliteDao {
      * @param pId l'id de l'écriture
      */
     void deleteEcritureComptable(Integer pId);
+
 }

@@ -2,6 +2,7 @@ package com.dummy.myerp.business.impl.manager;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
@@ -51,6 +52,14 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     @Override
     public List<EcritureComptable> getListEcritureComptable() {
         return getDaoProxy().getComptabiliteDao().getListEcritureComptable();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Date date) {
+        return getDaoProxy().getComptabiliteDao().getSequenceFromJournalAndAnnee(code, date);
     }
 
     /**
@@ -142,18 +151,26 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }
 
         // TODO ===== RG_Compta_5 : Format et contenu de la référence
-        // vérifier que l'année dans la référence correspond bien à la date de l'écriture, idem pour le code journal...
+        String dateRef =  String.valueOf(pEcritureComptable.getDate().getYear()+1900);
+        SequenceEcritureComptable sequenceEcritureComptable = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), pEcritureComptable.getDate());
+        int newRef = sequenceEcritureComptable.getDerniereValeur() == null ? 1: sequenceEcritureComptable.getDerniereValeur()+1;
+        // Vérification valorisation reference
         if (pEcritureComptable.getReference() != null) {
             String[] referenceSplit = pEcritureComptable.getReference().split("-|/");
-            System.out.println(Arrays.toString(referenceSplit));
-            if(referenceSplit[0] != pEcritureComptable.getJournal().getCode()){
+            // Vérification du code journal
+            if(!referenceSplit[0].equals(pEcritureComptable.getJournal().getCode())){
                 throw new FunctionalException(
-                        "La référence de l'écriture" + referenceSplit[0] + " ne correspond pas au code journal " + pEcritureComptable.getJournal().getCode()
+                        "La référence de l'écriture " + referenceSplit[0] + " ne correspond pas au code journal " + pEcritureComptable.getJournal().getCode()
                 );
-            }else if (!referenceSplit[1].equals(String.valueOf(pEcritureComptable.getDate().getYear()))){
+            // vérification année
+            }else if (!referenceSplit[1].equals(dateRef)){
                 throw new FunctionalException(
-                        "La référence de l'écriture" + referenceSplit[1] + " ne correspond pas à l'année de l'écriture " + pEcritureComptable.getDate().getYear()
+                        "La référence de l'écriture " + referenceSplit[1] + " ne correspond pas à l'année de l'écriture " + dateRef
                 );
+            // vérification séquence
+            }else if (!referenceSplit[2].equals(newRef)){
+                throw new FunctionalException(
+                        "Le numéro de séquence de l'écriture " + referenceSplit[2] + " ne correspond pas à la dernière séquence du journal" + pEcritureComptable.getJournal().getCode());
             }
         }else{
             throw new FunctionalException(
