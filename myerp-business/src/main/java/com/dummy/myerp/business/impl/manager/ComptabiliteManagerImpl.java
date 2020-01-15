@@ -2,7 +2,6 @@ package com.dummy.myerp.business.impl.manager;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
@@ -66,21 +65,23 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     /**
      * {@inheritDoc}
      */
-    // TODO à tester
     @Override
     public synchronized void addReference(EcritureComptable pEcritureComptable) {
-//        // TODO à implémenter
-//        Integer sequence = 0;
-//        Integer derniereValeur = null;
-//
-//        derniereValeur = getDaoProxy().getComptabiliteDao().getSequenceEcriture(
-//                pEcritureComptable.getJournal().getCode(),
-//                pEcritureComptable.getDate().getYear());
-//        if(derniereValeur == null){
-//            sequence = 1;
-//        }else{
-//            sequence += derniereValeur;
-//        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pEcritureComptable.getDate());
+        Integer year = calendar.get(Calendar.YEAR);
+        String codeJournal = pEcritureComptable.getJournal().getCode();
+        // récupération de la dernière valeur depuis BDD
+        SequenceEcritureComptable sequence = this.getSequenceFromJournalAndAnnee(codeJournal, year);
+                // Si l'enregistrement n'existe pas on l'initialise à un
+        Integer newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
+        String reference = codeJournal+"-"+year+"/"+String.format("%05d", newSequence);
+        pEcritureComptable.setReference(reference);
+        if(newSequence==1){
+            this.insertSequenceEcritureComptable(codeJournal, new SequenceEcritureComptable(year, newSequence));
+        }else{
+            this.updateSequenceEcritureComptable(codeJournal, new SequenceEcritureComptable(year, newSequence));
+        }
         // Bien se réferer à la JavaDoc de cette méthode !
         /* Le principe :
                 1.  Remonter depuis la persitance la dernière valeur de la séquence du journal pour l'année de l'écriture
@@ -158,7 +159,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     }
 
     /**
-     * {@see RG_COMPTA_5}
+     * <strong>RG_COMPTA_5</strong>
      * Vérifie si La référence d'une ecriture comptable est composée du code du {@link JournalComptable}
      * suivi de l'année de l'{@link EcritureComptable} sur 4 chiffres
      * puis d'un numéro de séquence (sur 5 chiffres) incrémenté automatiquement à chaque écriture (dernière valeur a récupérer dans la table SequenceEcritureComptable)
@@ -184,9 +185,9 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 );
             }
             // si le journal et la date sont bons, on récupère la lastSequence pour ce journal et cette annee depuis la base de données
-            Integer lastSequence = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), calendar.get(Calendar.YEAR)).getDerniereValeur();
-            // Si la lastSequence est nulle la nouvelle sequence sera 1, sinon lastSequence + 1
-            Integer newSequence = lastSequence == null ? 1: lastSequence+1;
+            SequenceEcritureComptable sequence = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), calendar.get(Calendar.YEAR));
+            // Si la sequence est nulle la nouvelle sequence sera 1, sinon lastSequence + 1
+            Integer newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
             // On formate la séquence sur 5 chiffres
             String newSequenceWithLeadingZeros = String.format("%05d", newSequence);
             if (!referenceSplit[2].equals(newSequenceWithLeadingZeros)){
@@ -271,5 +272,15 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         } finally {
             getTransactionManager().rollbackMyERP(vTS);
         }
+    }
+
+    @Override
+    public void updateSequenceEcritureComptable(String codeJournal, SequenceEcritureComptable sequenceEcritureComptable) {
+        // TODO implement
+    }
+
+    @Override
+    public void insertSequenceEcritureComptable(String codeJournal, SequenceEcritureComptable sequenceEcritureComptable) {
+        // TODO implement
     }
 }
