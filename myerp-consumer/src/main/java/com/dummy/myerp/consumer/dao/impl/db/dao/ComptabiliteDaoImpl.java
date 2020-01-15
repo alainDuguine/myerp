@@ -1,7 +1,6 @@
 package com.dummy.myerp.consumer.dao.impl.db.dao;
 
 import java.sql.Types;
-import java.util.Date;
 import java.util.List;
 
 import com.dummy.myerp.model.bean.comptabilite.*;
@@ -76,7 +75,7 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
     // ==================== SequenceEcritureComptable - GET ====================
 
     @Override
-    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Date date) {
+    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer date) {
         // TODO implement sql
         return null;
     }

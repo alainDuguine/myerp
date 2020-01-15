@@ -1,7 +1,7 @@
 package com.dummy.myerp.business.impl.manager;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -56,10 +56,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
 
     /**
      * {@inheritDoc}
+     * @return
      */
     @Override
-    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Date date) {
-        return getDaoProxy().getComptabiliteDao().getSequenceFromJournalAndAnnee(code, date);
+    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year) {
+        return getDaoProxy().getComptabiliteDao().getSequenceFromJournalAndAnnee(code, year);
     }
 
     /**
@@ -112,7 +113,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @param pEcritureComptable -
      * @throws FunctionalException Si l'Ecriture comptable ne respecte pas les règles de gestion
      */
-    // TODO tests à compléter
     protected void checkEcritureComptableUnit(EcritureComptable pEcritureComptable) throws FunctionalException {
         // ===== Vérification des contraintes unitaires sur les attributs de l'écriture
         Set<ConstraintViolation<EcritureComptable>> vViolations = getConstraintValidator().validate(pEcritureComptable);
@@ -149,12 +149,27 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
             throw new FunctionalException(
                 "L'écriture comptable doit avoir au moins deux lignes : une ligne au débit et une ligne au crédit.");
         }
+        try {
+            this.checkEcritureComptableReference(pEcritureComptable);
+        }catch (FunctionalException ex){
+            throw new FunctionalException(ex.getMessage());
+        }
 
-        // TODO ===== RG_Compta_5 : Format et contenu de la référence
-        String dateRef =  String.valueOf(pEcritureComptable.getDate().getYear()+1900);
-        SequenceEcritureComptable sequenceEcritureComptable = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), pEcritureComptable.getDate());
-        int newRef = sequenceEcritureComptable.getDerniereValeur() == null ? 1: sequenceEcritureComptable.getDerniereValeur()+1;
-        // Vérification valorisation reference
+    }
+
+    /**
+     * {@see RG_COMPTA_5}
+     * Vérifie si La référence d'une ecriture comptable est composée du code du {@link JournalComptable}
+     * suivi de l'année de l'{@link EcritureComptable} sur 4 chiffres
+     * puis d'un numéro de séquence (sur 5 chiffres) incrémenté automatiquement à chaque écriture (dernière valeur a récupérer dans la table SequenceEcritureComptable)
+     * Le formatage de la référence est : XX-AAAA/##### -> BQ-2016/00001, il est vérifiée par le validator dans le model {@link SequenceEcritureComptable} via une expression régulière
+     * @param pEcritureComptable {@link EcritureComptable} dont on veut tester la reference
+     * @throws FunctionalException si la référence enfreint une de ces règles
+     */
+    private void checkEcritureComptableReference(EcritureComptable pEcritureComptable) throws FunctionalException{
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(pEcritureComptable.getDate());
+        String yearInRef = String.valueOf(calendar.get(Calendar.YEAR));
         if (pEcritureComptable.getReference() != null) {
             String[] referenceSplit = pEcritureComptable.getReference().split("-|/");
             // Vérification du code journal
@@ -162,22 +177,27 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 throw new FunctionalException(
                         "La référence de l'écriture " + referenceSplit[0] + " ne correspond pas au code journal " + pEcritureComptable.getJournal().getCode()
                 );
-            // vérification année
-            }else if (!referenceSplit[1].equals(dateRef)){
+                // vérification année
+            }else if (!referenceSplit[1].equals(yearInRef)){
                 throw new FunctionalException(
-                        "La référence de l'écriture " + referenceSplit[1] + " ne correspond pas à l'année de l'écriture " + dateRef
+                        "La référence de l'écriture " + referenceSplit[1] + " ne correspond pas à l'année de l'écriture " + yearInRef
                 );
-            // vérification séquence
-            }else if (!referenceSplit[2].equals(newRef)){
+            }
+            // si le journal et la date sont bons, on récupère la lastSequence pour ce journal et cette annee depuis la base de données
+            Integer lastSequence = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), calendar.get(Calendar.YEAR)).getDerniereValeur();
+            // Si la lastSequence est nulle la nouvelle sequence sera 1, sinon lastSequence + 1
+            Integer newSequence = lastSequence == null ? 1: lastSequence+1;
+            // On formate la séquence sur 5 chiffres
+            String newSequenceWithLeadingZeros = String.format("%05d", newSequence);
+            if (!referenceSplit[2].equals(newSequenceWithLeadingZeros)){
                 throw new FunctionalException(
-                        "Le numéro de séquence de l'écriture " + referenceSplit[2] + " ne correspond pas à la dernière séquence du journal" + pEcritureComptable.getJournal().getCode());
+                        "Le numéro de séquence de l'écriture " + referenceSplit[2] + " ne correspond pas à la dernière séquence du journal " + newSequenceWithLeadingZeros);
             }
         }else{
             throw new FunctionalException(
                     "La référence de l'écriture ne peut pas être nulle.");
         }
     }
-
 
     /**
      * Vérifie que l'Ecriture comptable respecte les règles de gestion liées au contexte

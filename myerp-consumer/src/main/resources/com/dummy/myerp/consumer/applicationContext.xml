@@ -30,14 +30,14 @@
         <property name="targetMethod" value="configure"/>
         <property name="arguments">
             <list>
-                <ref bean="DaoProxy"/>
+                <ref bean="daoProxy"/>
             </list>
         </property>
     </bean>
 
 
     <!-- DaoProxy -->
-    <bean id="DaoProxy" class="com.dummy.myerp.consumer.dao.impl.DaoProxyImpl" factory-method="getInstance">
+    <bean id="daoProxy" class="com.dummy.myerp.consumer.dao.impl.DaoProxyImpl" factory-method="getInstance">
         <property name="comptabiliteDao" ref="ComptabiliteDaoImpl"/>
     </bean>
 

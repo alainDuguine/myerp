@@ -1,6 +1,5 @@
 package com.dummy.myerp.consumer.dao.contrat;
 
-import java.util.Date;
 import java.util.List;
 
 import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
@@ -33,10 +32,10 @@ public interface ComptabiliteDao {
     /**
      * Renvoie la séquence comptable de journal {@code journal_code} et d'année {@code annee}
      * @param code le code du journal
-     * @param date l'année concernée
+     * @param year l'année concernée au format AAAA
      * @return {@link SequenceEcritureComptable}
      */
-    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Date date);
+    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year);
 
     // ==================== EcritureComptable ====================
 

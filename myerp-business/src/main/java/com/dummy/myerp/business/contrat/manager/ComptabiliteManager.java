@@ -3,7 +3,6 @@ package com.dummy.myerp.business.contrat.manager;
 import java.util.Date;
 import java.util.List;
 
-import com.dummy.myerp.consumer.dao.contrat.ComptabiliteDao;
 import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
 import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
 import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
@@ -42,10 +41,10 @@ public interface ComptabiliteManager {
     /**
      * Renvoie {@link SequenceEcritureComptable} en fonction du code journal et de l'année
      * @param code code du Journal Comptable
-     * @param date date contenant l'année
+     * @param year integer contenant l'année au format AAAA
      * @return {@link SequenceEcritureComptable}
      */
-    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Date date);
+    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year);
 
     /**
      * Ajoute une référence à l'écriture comptable.
