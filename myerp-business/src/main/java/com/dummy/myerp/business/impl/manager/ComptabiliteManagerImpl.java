@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
@@ -82,24 +84,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         }else{
             this.updateSequenceEcritureComptable(codeJournal, new SequenceEcritureComptable(year, newSequence));
         }
-        // Bien se réferer à la JavaDoc de cette méthode !
-        /* Le principe :
-                1.  Remonter depuis la persitance la dernière valeur de la séquence du journal pour l'année de l'écriture
-                    (table sequence_ecriture_comptable)
-                2.  * S'il n'y a aucun enregistrement pour le journal pour l'année concernée :
-                        1. Utiliser le numéro 1.
-                    * Sinon :
-                        1. Utiliser la dernière valeur + 1
-                3.  Mettre à jour la référence de l'écriture avec la référence calculée (RG_Compta_5)
-                4.  Enregistrer (insert/update) la valeur de la séquence en persitance
-                    (table sequence_ecriture_comptable)
-         */
     }
 
     /**
      * {@inheritDoc}
      */
-    // TODO à tester
     @Override
     public void checkEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
         this.checkEcritureComptableUnit(pEcritureComptable);
@@ -215,19 +204,14 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 EcritureComptable vECRef = getDaoProxy().getComptabiliteDao().getEcritureComptableByRef(
                     pEcritureComptable.getReference());
 
-                // Si l'écriture à vérifier est une nouvelle écriture (id == null),
-                // ou si elle ne correspond pas à l'écriture trouvée (id != idECRef),
-                // c'est qu'il y a déjà une autre écriture avec la même référence
-//                if (pEcritureComptable.getId() == null
-//                    || !pEcritureComptable.getId().equals(vECRef.getId())) {
-//                    throw new FunctionalException("Une autre écriture comptable existe déjà avec la même référence.");
-//                }
                 int idpEcritureComptable = pEcritureComptable.getId() == null ? 0 : pEcritureComptable.getId();
+
                 // si il y a un enregistrement et qu'il est d'un id différent de celui qu'on vérifie
                 if (vECRef != null && !vECRef.getId().equals(idpEcritureComptable) ){
                     throw new FunctionalException("Une autre écriture comptable existe déjà avec la même référence.");
                 }
             } catch (NotFoundException vEx) {
+               Logger.getAnonymousLogger().log(Level.INFO, vEx.getMessage());
                 // Dans ce cas, c'est bon, ça veut dire qu'on n'a aucune autre écriture avec la même référence.
             }
         }

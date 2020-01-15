@@ -21,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
@@ -132,7 +133,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
     }
 
     @Test
-    public void checkRG6_GivenEcritureComptable_WithReferenceAlreadyExisting_ThrowsFunctionalException() throws FunctionalException, NotFoundException {
+    public void checkRG6_GivenEcritureComptable_WithReferenceAlreadyExisting_WhenCheckEcritureComptableReference_ThrowsFunctionalException() throws FunctionalException, NotFoundException {
         this.initializeMock();
 
         EcritureComptable ecritureComptable = new EcritureComptable();
@@ -148,6 +149,59 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
         exceptionRule.expectMessage("Une autre écriture comptable existe déjà avec la même référence.");
 
         manager.checkEcritureComptableContext(vEcritureComptable);
+    }
+
+    @Test
+    public void checkRG6_GivenEcritureComptable_WithNoReferenceExisting_WhenCheckEcritureComptableReference_Ok() throws FunctionalException, NotFoundException {
+        this.initializeMock();
+
+        when(comptabiliteDao.getEcritureComptableByRef(anyString())).thenThrow(NotFoundException.class);
+
+        vEcritureComptable.setReference("AA-2015/00001");
+
+        manager.checkEcritureComptableContext(vEcritureComptable);
+    }
+
+    @Test(expected = FunctionalException.class)
+    public void GivenEcritureComptable_WithUnitMistake__WhenCheckEcritureComptable__ThrowsFunctionalException() throws FunctionalException, NotFoundException {
+        this.initializeMock();
+
+        when(comptabiliteDao.getEcritureComptableByRef(anyString())).thenThrow(NotFoundException.class);
+
+        manager.checkEcritureComptable(vEcritureComptable);
+    }
+
+    @Test(expected = FunctionalException.class)
+    public void GivenEcritureComptable_WithContextMistake__WhenCheckEcritureComptable__ThrowsFunctionalException() throws FunctionalException, NotFoundException {
+        this.initializeMock();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(vEcritureComptable.getDate());
+        SequenceEcritureComptable sequenceMock = new SequenceEcritureComptable(calendar.get(Calendar.YEAR),12);
+        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willReturn(sequenceMock);
+
+        EcritureComptable ecritureComptable = new EcritureComptable();
+        ecritureComptable.setId(1);
+        ecritureComptable.setReference("AA-2015/00001");
+        given(comptabiliteDao.getEcritureComptableByRef(anyString())).willReturn(ecritureComptable);
+
+        manager.addReference(vEcritureComptable);
+        manager.checkEcritureComptable(vEcritureComptable);
+    }
+
+    @Test
+    public void GivenEcritureComptable_WithoutMistake__WhenCheckEcritureComptable__Ok() throws FunctionalException, NotFoundException {
+        this.initializeMock();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(vEcritureComptable.getDate());
+        SequenceEcritureComptable sequenceMock = new SequenceEcritureComptable(calendar.get(Calendar.YEAR),12);
+        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willReturn(sequenceMock);
+
+        when(comptabiliteDao.getEcritureComptableByRef(anyString())).thenThrow(NotFoundException.class);
+
+        manager.addReference(vEcritureComptable);
+        manager.checkEcritureComptable(vEcritureComptable);
     }
 
     // =================== TESTS ALREADY IMPLEMENTED ====================================
