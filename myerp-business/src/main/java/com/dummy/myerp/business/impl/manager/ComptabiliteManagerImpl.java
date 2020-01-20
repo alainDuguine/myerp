@@ -76,7 +76,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         // récupération de la dernière valeur depuis BDD
         SequenceEcritureComptable sequence = this.getSequenceFromJournalAndAnnee(codeJournal, year);
                 // Si l'enregistrement n'existe pas on l'initialise à un
-        Integer newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
+        int newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
         String reference = codeJournal+"-"+year+"/"+String.format("%05d", newSequence);
         pEcritureComptable.setReference(reference);
         if(newSequence==1){

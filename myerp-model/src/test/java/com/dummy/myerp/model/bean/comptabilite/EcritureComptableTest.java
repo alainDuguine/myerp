@@ -1,12 +1,10 @@
 package com.dummy.myerp.model.bean.comptabilite;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.core.util.SystemClock;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
