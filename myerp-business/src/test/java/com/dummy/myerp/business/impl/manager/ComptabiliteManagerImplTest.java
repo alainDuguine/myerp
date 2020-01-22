@@ -28,14 +28,15 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
 
-    private ComptabiliteManagerImpl manager = new ComptabiliteManagerImpl();
+    @InjectMocks
+    private ComptabiliteManagerImpl manager;
 
     @Mock
     DaoProxy daoProxy;
     @Mock
     private ComptabiliteDao comptabiliteDao;
 
-    @InjectMocks
+
     private EcritureComptable vEcritureComptable;
 
     @BeforeEach
