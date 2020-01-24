@@ -8,6 +8,7 @@ import com.dummy.myerp.model.bean.comptabilite.EcritureComptable;
 import com.dummy.myerp.model.bean.comptabilite.JournalComptable;
 import com.dummy.myerp.model.bean.comptabilite.SequenceEcritureComptable;
 import com.dummy.myerp.technical.exception.FunctionalException;
+import com.dummy.myerp.technical.exception.NotFoundException;
 
 
 /**
@@ -44,7 +45,7 @@ public interface ComptabiliteManager {
      * @param year integer contenant l'année au format AAAA
      * @return {@link SequenceEcritureComptable}
      */
-    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year);
+    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year) throws NotFoundException;
 
     /**
      * Ajoute une référence à l'écriture comptable.
@@ -60,7 +61,7 @@ public interface ComptabiliteManager {
      * <p><strong>Attention :</strong> l'écriture n'est pas enregistrée en persistance</p>
      * @param pEcritureComptable L'écriture comptable concernée
      */
-    void addReference(EcritureComptable pEcritureComptable);
+    void addReference(EcritureComptable pEcritureComptable) throws NotFoundException;
     // Bien se réferer à la JavaDoc de cette méthode !
         /* Le principe :
                 1.  Remonter depuis la persitance la dernière valeur de la séquence du journal pour l'année de l'écriture
