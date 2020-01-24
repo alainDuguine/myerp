@@ -10,16 +10,12 @@
 
 
     <!-- ==================== External datasource properties file ==================== -->
-    <context:property-placeholder location="classpath:/com/dummy/myerp/testconsumer/consumer/db-test.properties"/>
-
+    <context:property-placeholder location="classpath:/com/dummy/myerp/testbusiness/business/db-test.properties"/>
 
 
     <!-- ====================   Chargement des context des modules consumer et business   ==================== -->
 
-    <import resource="classpath:/com/dummy/myerp/consumer/consumerContext.xml"/>
-
-<!--    <import resource="classpath:/com/dummy/myerp/business/businessContext.xml"/>-->
-<!--    <import resource="classpath:/com/dummy/myerp/business/transactionContext.xml"/>-->
+    <import resource="classpath:/com/dummy/myerp/business/businessContext.xml"/>
 
     <!-- ==================== Datasource ==================== -->
     <bean id="dataSourceMYERP" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">

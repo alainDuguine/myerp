@@ -4,8 +4,6 @@ import java.sql.Types;
 import java.util.List;
 
 import com.dummy.myerp.model.bean.comptabilite.*;
-import javafx.beans.NamedArg;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -18,7 +16,6 @@ import com.dummy.myerp.consumer.dao.impl.db.rowmapper.comptabilite.LigneEcriture
 import com.dummy.myerp.consumer.db.AbstractDbConsumer;
 import com.dummy.myerp.consumer.db.DataSourcesEnum;
 import com.dummy.myerp.technical.exception.NotFoundException;
-import org.springframework.stereotype.Component;
 
 
 /**
