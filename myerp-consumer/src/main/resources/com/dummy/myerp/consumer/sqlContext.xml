@@ -20,6 +20,13 @@
                 SELECT * FROM myerp.journal_comptable
             </value>
         </property>
+        <property name="SQLgetSequenceFromJournalAndAnnee">
+            <value>
+                SELECT * FROM myerp.sequence_ecriture_comptable
+                WHERE journal_code = :code
+                AND annee = :date
+            </value>
+        </property>
         <property name="SQLgetListEcritureComptable">
             <value>
                 SELECT * FROM myerp.ecriture_comptable

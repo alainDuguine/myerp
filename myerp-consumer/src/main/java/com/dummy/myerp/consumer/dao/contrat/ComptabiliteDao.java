@@ -35,7 +35,7 @@ public interface ComptabiliteDao {
      * @param year l'année concernée au format AAAA
      * @return {@link SequenceEcritureComptable}
      */
-    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year);
+    SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year) throws NotFoundException;
 
     // ==================== EcritureComptable ====================
 
