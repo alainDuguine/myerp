@@ -125,7 +125,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
         this.initializeMockDao();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(vEcritureComptable.getDate());
-        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willReturn(null);
+        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willThrow(NotFoundException.class);
 
         manager.addReference(vEcritureComptable);
         manager.checkEcritureComptableUnit(vEcritureComptable);

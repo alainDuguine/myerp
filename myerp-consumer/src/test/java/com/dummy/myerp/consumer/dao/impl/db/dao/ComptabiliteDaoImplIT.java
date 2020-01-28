@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:com/dummy/myerp/testconsumer/consumer/testContext.xml")
-public class ComptabiliteDaoImplTest {
+public class ComptabiliteDaoImplIT {
 
     @Autowired
     private ComptabiliteDaoImpl dao;

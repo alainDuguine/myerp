@@ -75,11 +75,14 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         String codeJournal = pEcritureComptable.getJournal().getCode();
         // récupération de la dernière valeur depuis BDD
         SequenceEcritureComptable sequence = null;
+        int newSequence;
         try {
             sequence = this.getSequenceFromJournalAndAnnee(codeJournal, year);
-        } catch (NotFoundException ignored) {}
+            newSequence = sequence.getDerniereValeur()+1;
+        } catch (NotFoundException e) {
+            newSequence = 1;
+        }
         // Si l'enregistrement n'existe pas on l'initialise à un
-        int newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
         String reference = codeJournal+"-"+year+"/"+String.format("%05d", newSequence);
         pEcritureComptable.setReference(reference);
         if(newSequence==1){
