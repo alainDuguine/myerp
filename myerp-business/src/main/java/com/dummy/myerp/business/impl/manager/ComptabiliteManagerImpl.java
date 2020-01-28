@@ -60,7 +60,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * @return
      */
     @Override
-    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year) {
+    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer year) throws NotFoundException {
         return getDaoProxy().getComptabiliteDao().getSequenceFromJournalAndAnnee(code, year);
     }
 
@@ -68,15 +68,21 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * {@inheritDoc}
      */
     @Override
-    public synchronized void addReference(EcritureComptable pEcritureComptable) {
+    public synchronized void addReference(EcritureComptable pEcritureComptable){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(pEcritureComptable.getDate());
         Integer year = calendar.get(Calendar.YEAR);
         String codeJournal = pEcritureComptable.getJournal().getCode();
         // récupération de la dernière valeur depuis BDD
-        SequenceEcritureComptable sequence = this.getSequenceFromJournalAndAnnee(codeJournal, year);
-                // Si l'enregistrement n'existe pas on l'initialise à un
-        int newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
+        SequenceEcritureComptable sequence = null;
+        int newSequence;
+        try {
+            sequence = this.getSequenceFromJournalAndAnnee(codeJournal, year);
+            newSequence = sequence.getDerniereValeur()+1;
+        } catch (NotFoundException e) {
+            newSequence = 1;
+        }
+        // Si l'enregistrement n'existe pas on l'initialise à un
         String reference = codeJournal+"-"+year+"/"+String.format("%05d", newSequence);
         pEcritureComptable.setReference(reference);
         if(newSequence==1){
@@ -174,7 +180,10 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                 );
             }
             // si le journal et la date sont bons, on récupère la lastSequence pour ce journal et cette annee depuis la base de données
-            SequenceEcritureComptable sequence = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), calendar.get(Calendar.YEAR));
+            SequenceEcritureComptable sequence = null;
+            try {
+                sequence = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), calendar.get(Calendar.YEAR));
+            } catch (NotFoundException ignored){}
             // Si la sequence est nulle la nouvelle sequence sera 1, sinon lastSequence + 1
             Integer newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
             // On formate la séquence sur 5 chiffres

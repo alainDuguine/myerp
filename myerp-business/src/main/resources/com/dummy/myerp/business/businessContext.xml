@@ -9,14 +9,13 @@
     <!-- BusinessProxy -->
     <bean id="businessProxy"
           class="com.dummy.myerp.business.impl.BusinessProxyImpl"
-          scope="singleton"
           factory-method="getInstance">
         <constructor-arg ref="daoProxy"/>
-        <constructor-arg ref="TransactionManager"/>
+        <constructor-arg ref="transactionManager"/>
     </bean>
 
 
     <!-- ========== Transaction Managers ========== -->
     <import resource="transactionContext.xml"/>
-    <import resource="classpath:/com/dummy/myerp/consumer/applicationContext.xml"/>
+    <import resource="classpath:/com/dummy/myerp/consumer/consumerContext.xml"/>
 </beans>

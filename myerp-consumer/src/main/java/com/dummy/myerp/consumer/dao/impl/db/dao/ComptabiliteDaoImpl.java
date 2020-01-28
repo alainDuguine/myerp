@@ -3,16 +3,13 @@ package com.dummy.myerp.consumer.dao.impl.db.dao;
 import java.sql.Types;
 import java.util.List;
 
+import com.dummy.myerp.consumer.dao.impl.db.rowmapper.comptabilite.*;
 import com.dummy.myerp.model.bean.comptabilite.*;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import com.dummy.myerp.consumer.dao.contrat.ComptabiliteDao;
-import com.dummy.myerp.consumer.dao.impl.db.rowmapper.comptabilite.CompteComptableRM;
-import com.dummy.myerp.consumer.dao.impl.db.rowmapper.comptabilite.EcritureComptableRM;
-import com.dummy.myerp.consumer.dao.impl.db.rowmapper.comptabilite.JournalComptableRM;
-import com.dummy.myerp.consumer.dao.impl.db.rowmapper.comptabilite.LigneEcritureComptableRM;
 import com.dummy.myerp.consumer.db.AbstractDbConsumer;
 import com.dummy.myerp.consumer.db.DataSourcesEnum;
 import com.dummy.myerp.technical.exception.NotFoundException;
@@ -74,10 +71,30 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
 
     // ==================== SequenceEcritureComptable - GET ====================
 
+    private static String SQLgetSequenceFromJournalAndAnnee;
+    public void setSQLgetSequenceFromJournalAndAnnee(String pSQLgetSequenceFromJournalAndAnnee) {
+        SQLgetSequenceFromJournalAndAnnee = pSQLgetSequenceFromJournalAndAnnee;
+    }
+
     @Override
-    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer date) {
-        // TODO implement sql
-        return null;
+    public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer date) throws NotFoundException{
+        NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
+        MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
+        vSqlParams.addValue("code", code);
+        vSqlParams.addValue("date", date);
+        SequenceEcritureComptableRM vRM = new SequenceEcritureComptableRM();
+        SequenceEcritureComptable vBean;
+        try{
+            vBean = vJdbcTemplate.queryForObject(SQLgetSequenceFromJournalAndAnnee, vSqlParams, vRM);
+        }catch (EmptyResultDataAccessException vEx){
+            throw new NotFoundException(
+                    "SequenceEcritureComptable non trouvée : " +
+                    "journal=" + code +
+                    "année=" +date
+            );
+        }
+
+        return vBean;
     }
 
     // ==================== EcritureComptable - GET ====================
@@ -272,4 +289,6 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
         vSqlParams.addValue("ecriture_id", pEcritureId);
         vJdbcTemplate.update(SQLdeleteListLigneEcritureComptable, vSqlParams);
     }
+
+
 }

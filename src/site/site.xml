@@ -11,7 +11,7 @@
   <bannerLeft>
     <name>${project.name}</name>
     <src>img/logo-app.png</src>
-    <href>${project.url}</href>
+    <href>${this.url}</href>
   </bannerLeft>
 
   <bannerRight>
@@ -35,7 +35,7 @@
     </menu>
 
     <menu name="Documentations">
-    	<item name="Document Exemple 1" href="doc/fichierDocExemple.txt"/>
+<!--    	<item name="Document Exemple 1" href="doc/fichierDocExemple.txt"/>-->
     </menu>
 
 

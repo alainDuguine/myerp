@@ -32,8 +32,6 @@ public class LigneEcritureComptableTest {
 
         Set<ConstraintViolation<LigneEcritureComptable>> violations = validator.validate(ligne);
         assertThat(violations.size()).isEqualTo(2);
-        violations.forEach(violation -> assertThat(violation.getMessage())
-            .isEqualTo("Valeur numérique hors limite (<13 chiffres>.<2 chiffres> attendus)"));
     }
 
     @Test
