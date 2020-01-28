@@ -420,6 +420,16 @@
                         </formats>
                         <check />
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>cobertura-check</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>cobertura</goal>
+                                <goal>cobertura-integration-test</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <!-- ===== Plugin d'analyse de code Checkstyle ===== -->
                 <plugin>
