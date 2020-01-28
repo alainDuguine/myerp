@@ -1,5 +1,6 @@
 # MyERP
 [![Build Status](https://travis-ci.com/alainDuguine/myerp.svg?branch=master)](https://travis-ci.com/alainDuguine/myerp)
+[![codecov](https://codecov.io/gh/alainDuguine/myerp/branch/master/graph/badge.svg)](https://codecov.io/gh/alainDuguine/myerp)
 ## Organisation du répertoire
 
 *   `doc` : documentation
