@@ -74,15 +74,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         Integer year = calendar.get(Calendar.YEAR);
         String codeJournal = pEcritureComptable.getJournal().getCode();
         // récupération de la dernière valeur depuis BDD
-        SequenceEcritureComptable sequence = null;
-        int newSequence;
-        try {
-            sequence = this.getSequenceFromJournalAndAnnee(codeJournal, year);
-            newSequence = sequence.getDerniereValeur()+1;
-        } catch (NotFoundException e) {
-            newSequence = 1;
-        }
-        // Si l'enregistrement n'existe pas on l'initialise à un
+        int newSequence = this.getNextSequenceFromEcriture(pEcritureComptable, calendar.get(Calendar.YEAR));
         String reference = codeJournal+"-"+year+"/"+String.format("%05d", newSequence);
         pEcritureComptable.setReference(reference);
         if(newSequence==1){
@@ -179,13 +171,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                         "La référence de l'écriture " + referenceSplit[1] + " ne correspond pas à l'année de l'écriture " + yearInRef
                 );
             }
-            // si le journal et la date sont bons, on récupère la lastSequence pour ce journal et cette annee depuis la base de données
-            SequenceEcritureComptable sequence = null;
-            try {
-                sequence = this.getSequenceFromJournalAndAnnee(pEcritureComptable.getJournal().getCode(), calendar.get(Calendar.YEAR));
-            } catch (NotFoundException ignored){}
-            // Si la sequence est nulle la nouvelle sequence sera 1, sinon lastSequence + 1
-            Integer newSequence = sequence == null ? 1: sequence.getDerniereValeur()+1;
+            int newSequence = this.getNextSequenceFromEcriture(pEcritureComptable, calendar.get(Calendar.YEAR));
             // On formate la séquence sur 5 chiffres
             String newSequenceWithLeadingZeros = String.format("%05d", newSequence);
             if (!referenceSplit[2].equals(newSequenceWithLeadingZeros)){
@@ -280,5 +266,14 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
     @Override
     public void insertSequenceEcritureComptable(String codeJournal, SequenceEcritureComptable sequenceEcritureComptable) {
         // TODO implement
+    }
+
+    private int getNextSequenceFromEcriture(EcritureComptable ecritureComptable, int annee){
+        try {
+            SequenceEcritureComptable sequence = this.getSequenceFromJournalAndAnnee(ecritureComptable.getJournal().getCode(), annee);
+            return sequence.getDerniereValeur()+1;
+        } catch (NotFoundException ex){
+            return 1;
+        }
     }
 }

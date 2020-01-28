@@ -16,6 +16,7 @@
     <!-- ====================   Chargement des context des modules consumer et business   ==================== -->
 
     <import resource="classpath:/com/dummy/myerp/business/businessContext.xml"/>
+    <import resource="classpath:/com/dummy/myerp/consumer/consumerContext.xml"/>
 
     <!-- ==================== Datasource ==================== -->
     <bean id="dataSourceMYERP" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
