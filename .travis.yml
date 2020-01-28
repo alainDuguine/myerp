@@ -2,6 +2,14 @@ language: java
 
 jdk: openjdk8
 
+services:
+  - docker
+
+before_install:
+  - cd docker/dev
+  - docker-compose up -d
+  - docker ps -a
+
 script: "mvn cobertura:cobertura -P test-consumer,test-business"
 
 after_success:
