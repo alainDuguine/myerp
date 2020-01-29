@@ -77,11 +77,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         int newSequence = this.getNextSequenceFromEcriture(pEcritureComptable, calendar.get(Calendar.YEAR));
         String reference = codeJournal+"-"+year+"/"+String.format("%05d", newSequence);
         pEcritureComptable.setReference(reference);
-        if(newSequence==1){
-            this.insertSequenceEcritureComptable(codeJournal, new SequenceEcritureComptable(year, newSequence));
-        }else{
-            this.updateSequenceEcritureComptable(codeJournal, new SequenceEcritureComptable(year, newSequence));
-        }
+        this.insertOrUpdateSequenceEcritureComptable(new SequenceEcritureComptable(pEcritureComptable.getJournal(), year, newSequence));
     }
 
     /**
@@ -159,7 +155,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         calendar.setTime(pEcritureComptable.getDate());
         String yearInRef = String.valueOf(calendar.get(Calendar.YEAR));
         if (pEcritureComptable.getReference() != null) {
-            String[] referenceSplit = pEcritureComptable.getReference().split("-|/");
+            String[] referenceSplit = pEcritureComptable.getReference().split("[-/]");
             // Vérification du code journal
             if(!referenceSplit[0].equals(pEcritureComptable.getJournal().getCode())){
                 throw new FunctionalException(
@@ -233,6 +229,7 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      */
     @Override
     public void updateEcritureComptable(EcritureComptable pEcritureComptable) throws FunctionalException {
+        this.checkEcritureComptable(pEcritureComptable);
         TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
         try {
             getDaoProxy().getComptabiliteDao().updateEcritureComptable(pEcritureComptable);
@@ -247,6 +244,36 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
      * {@inheritDoc}
      */
     @Override
+    public void insertOrUpdateSequenceEcritureComptable(SequenceEcritureComptable pSequenceEcritureComptable) {
+        TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+        try {
+            getDaoProxy().getComptabiliteDao().insertOrUpdateSequenceEcritureComptable(pSequenceEcritureComptable);
+            getTransactionManager().commitMyERP(vTS);
+            vTS = null;
+        } finally {
+            getTransactionManager().rollbackMyERP(vTS);
+        }
+    }
+
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public void updateSequenceEcritureComptable(SequenceEcritureComptable pSequenceEcritureComptable) {
+//        TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+//        try {
+//            getDaoProxy().getComptabiliteDao().updateSequenceEcritureComptable(pSequenceEcritureComptable);
+//            getTransactionManager().commitMyERP(vTS);
+//            vTS = null;
+//        } finally {
+//            getTransactionManager().rollbackMyERP(vTS);
+//        }
+//    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void deleteEcritureComptable(Integer pId) {
         TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
         try {
@@ -256,16 +283,6 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         } finally {
             getTransactionManager().rollbackMyERP(vTS);
         }
-    }
-
-    @Override
-    public void updateSequenceEcritureComptable(String codeJournal, SequenceEcritureComptable sequenceEcritureComptable) {
-        // TODO implement
-    }
-
-    @Override
-    public void insertSequenceEcritureComptable(String codeJournal, SequenceEcritureComptable sequenceEcritureComptable) {
-        // TODO implement
     }
 
     private int getNextSequenceFromEcriture(EcritureComptable ecritureComptable, int annee){

@@ -1,6 +1,5 @@
 package com.dummy.myerp.business.contrat.manager;
 
-import java.util.Date;
 import java.util.List;
 
 import com.dummy.myerp.model.bean.comptabilite.CompteComptable;
@@ -105,20 +104,18 @@ public interface ComptabiliteManager {
      * @param pId l'id de l'écriture
      */
     void deleteEcritureComptable(Integer pId);
-
-    /**
-     * Met à jour une nouvelle sequence ecriture comptable.
-     *
-     * @param codeJournal - le code du journal concerné (clé étrangère)
-     * @param sequenceEcritureComptable -
-     */
-    void updateSequenceEcritureComptable(String codeJournal, SequenceEcritureComptable sequenceEcritureComptable);
+//
+//    /**
+//     * Met à jour une nouvelle sequence ecriture comptable.
+//     *
+//     * @param sequenceEcritureComptable -
+//     */
+//    void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
 
     /**
      * Insert une nouvelle sequence d'écriture comptable.
      *
-     * @param codeJournal - le code du journal concerné (clé étrangère)
      * @param sequenceEcritureComptable -
      */
-    void insertSequenceEcritureComptable(String codeJournal, SequenceEcritureComptable sequenceEcritureComptable);
+    void insertOrUpdateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
 }

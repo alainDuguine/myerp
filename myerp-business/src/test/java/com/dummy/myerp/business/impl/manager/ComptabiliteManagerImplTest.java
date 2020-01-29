@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.dummy.myerp.business.impl.AbstractBusinessManager;
+import com.dummy.myerp.business.impl.TransactionManager;
 import com.dummy.myerp.consumer.dao.contrat.ComptabiliteDao;
 import com.dummy.myerp.consumer.dao.contrat.DaoProxy;
 import com.dummy.myerp.model.bean.comptabilite.*;
@@ -21,9 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
@@ -35,6 +34,8 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
     DaoProxy daoProxy;
     @Mock
     private ComptabiliteDao comptabiliteDao;
+    @Mock
+    TransactionManager transactionManager;
 
 
     private EcritureComptable vEcritureComptable;
@@ -55,19 +56,19 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
 
     private void initializeMockDao(){
         // initialisation du mock pour récupérer la dernier valeur de SequenceEcritureComptable
-        AbstractBusinessManager.configure(null, this.daoProxy, null);
+        AbstractBusinessManager.configure(null, this.daoProxy, this.transactionManager);
         given(getDaoProxy().getComptabiliteDao()).willReturn(this.comptabiliteDao);
     }
 
     @Test
-    public void checkRG5_GivenEcritureComptable_WhithoutReference_WhenCheckEcritureComptableUnit_ThrowsNullFunctionalException() throws Exception {
+    public void checkRG5_GivenEcritureComptable_WhithoutReference_WhenCheckEcritureComptableUnit_ThrowsNullFunctionalException(){
         Exception exception = assertThrows(FunctionalException.class, () -> manager.checkEcritureComptableUnit(vEcritureComptable));
 
         assertThat("La référence de l'écriture ne peut pas être nulle.").isEqualTo(exception.getMessage());
     }
 
     @Test
-    public void checkRG5_GivenEcritureComptable_WhithWrongCodeJournalInReference_WhenCheckEcritureComptableUnit_ThrowsWrongCodeJournalFunctionalException() throws Exception {
+    public void checkRG5_GivenEcritureComptable_WhithWrongCodeJournalInReference_WhenCheckEcritureComptableUnit_ThrowsWrongCodeJournalFunctionalException(){
         String wrongCodeJournal = "AA";
         vEcritureComptable.setReference(wrongCodeJournal+"-2020/00001");
 
@@ -77,7 +78,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
     }
 
     @Test
-    public void checkRG5_GivenEcritureComptable_WhithWrongDateInReference_WhenCheckEcritureComptableUnit_ThrowsWrongDateFunctionalException() throws Exception {
+    public void checkRG5_GivenEcritureComptable_WhithWrongDateInReference_WhenCheckEcritureComptableUnit_ThrowsWrongDateFunctionalException(){
         String wrongYear = "2015";
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(vEcritureComptable.getDate());
@@ -133,7 +134,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
     }
 
     @Test
-    public void checkRG6_GivenEcritureComptable_WithReferenceAlreadyExisting_WhenCheckEcritureComptableReference_ThrowsFunctionalException() throws FunctionalException, NotFoundException {
+    public void checkRG6_GivenEcritureComptable_WithReferenceAlreadyExisting_WhenCheckEcritureComptableReference_ThrowsFunctionalException() throws NotFoundException {
         this.initializeMockDao();
 
         EcritureComptable ecritureComptable = new EcritureComptable();
@@ -160,7 +161,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
     }
 
     @Test
-    public void GivenEcritureComptable_WithContextMistake__WhenCheckEcritureComptable__ThrowsFunctionalException() throws FunctionalException, NotFoundException {
+    public void GivenEcritureComptable_WithContextMistake__WhenCheckEcritureComptable__ThrowsFunctionalException() throws NotFoundException {
         this.initializeMockDao();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(vEcritureComptable.getDate());
@@ -194,14 +195,14 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
     // =================== TESTS ALREADY IMPLEMENTED ====================================
 
     @Test
-    public void checkEcritureComptableUnitViolation() throws Exception {
+    public void checkEcritureComptableUnitViolation() {
         EcritureComptable vEcritureComptable;
         vEcritureComptable = new EcritureComptable();
         assertThrows(FunctionalException.class, () -> manager.checkEcritureComptableUnit(vEcritureComptable));
     }
 
     @Test
-    public void checkEcritureComptableUnitRG2() throws Exception {
+    public void checkEcritureComptableUnitRG2() {
         EcritureComptable vEcritureComptable;
         vEcritureComptable = new EcritureComptable();
         vEcritureComptable.setJournal(new JournalComptable("AC", "Achat"));
@@ -218,7 +219,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
     }
 
     @Test
-    public void checkEcritureComptableUnitRG3() throws Exception {
+    public void checkEcritureComptableUnitRG3() {
         EcritureComptable vEcritureComptable;
         vEcritureComptable = new EcritureComptable();
         vEcritureComptable.setJournal(new JournalComptable("AC", "Achat"));
