@@ -11,7 +11,11 @@ before_install:
   - docker ps -a
   - cd ../..
 
-script: "mvn cobertura:cobertura -P test-consumer,test-business"
+env:
+  global:
+    - CODECOV_TOKEN=:9b841d48-6afe-4ed1-bdea-aa84673c57ec
+
+#script: "mvn cobertura:cobertura -P test-consumer,test-business"
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
