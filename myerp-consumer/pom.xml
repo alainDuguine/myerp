@@ -147,7 +147,7 @@
                 </plugins>
                 <testResources>
                     <testResource>
-                        <directory>src/test/resources</directory>
+                        <directory>src/test-consumer/resources</directory>
                     </testResource>
                     <testResource>
                         <directory>src/test-consumer/resources</directory>
@@ -162,5 +162,19 @@
     <!-- Build -->
     <!-- =============================================================== -->
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

@@ -1,4 +1,4 @@
-package com.dummy.myerp.consumer.dao.impl.db.dao;
+package com.dummy.myerp.consumer;
 
 import com.dummy.myerp.consumer.db.AbstractDbConsumer;
 import com.dummy.myerp.consumer.db.DataSourcesEnum;

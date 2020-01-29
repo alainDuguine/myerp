@@ -1,4 +1,4 @@
-package com.dummy.myerp.consumer.dao.impl.db.dao;
+package com.dummy.myerp.consumer;
 
 import java.sql.Types;
 import java.util.List;

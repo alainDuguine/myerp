@@ -636,6 +636,15 @@
                     </reportSet>
                 </reportSets>
             </plugin>
+
+            <!-- ===== Création du rapport d'analyse des test par Cobertura ===== -->
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.7</version>
+            </plugin>
+
         </plugins>
     </reporting>
 </project>

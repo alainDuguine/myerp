@@ -1,4 +1,4 @@
-package com.dummy.myerp.consumer.dao.impl.db.dao;
+package com.dummy.myerp.consumer;
 
 
 import com.dummy.myerp.model.bean.comptabilite.*;
