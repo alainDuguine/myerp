@@ -69,22 +69,45 @@ public class ComptabiliteDaoImpl extends AbstractDbConsumer implements Comptabil
 
     // ==================== SequenceEcritureComptable - GET ====================
 
-
+    private static String SQLinsertSequenceEcritureComptable;
+    public void setSQLinsertSequenceEcritureComptable(String pSQLgetSequenceFromJournalAndAnnee) {
+        SQLinsertSequenceEcritureComptable = pSQLgetSequenceFromJournalAndAnnee;
+    }
+    private static String SQLupdateSequenceEcritureComptable;
+    public void setSQLupdateSequenceEcritureComptable(String pSQLgetSequenceFromJournalAndAnnee) {
+        SQLupdateSequenceEcritureComptable = pSQLgetSequenceFromJournalAndAnnee;
+    }
     @Override
-    public void insertSequenceComptable(SequenceEcritureComptable pSequenceEcritureComptable) {
-        // TODO
+    public void insertOrUpdateSequenceEcritureComptable(SequenceEcritureComptable pSequenceEcritureComptable) {
+        NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
+        MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
+        vSqlParams.addValue("journal_code", pSequenceEcritureComptable.getJournal().getCode());
+        vSqlParams.addValue("annee", pSequenceEcritureComptable.getAnnee());
+        vSqlParams.addValue("derniere_valeur", pSequenceEcritureComptable.getDerniereValeur());
+        if(pSequenceEcritureComptable.getDerniereValeur()==1){
+            vJdbcTemplate.update(SQLinsertSequenceEcritureComptable, vSqlParams);
+        }else{
+            vJdbcTemplate.update(SQLupdateSequenceEcritureComptable, vSqlParams);
+        }
     }
 
-    @Override
-    public void updateSequenceComptable(SequenceEcritureComptable pSequenceEcritureComptable) {
-        // TODO
-    }
+//
+//    @Override
+//    public void updateSequenceEcritureComptable(SequenceEcritureComptable pSequenceEcritureComptable) {
+//        NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));
+//        MapSqlParameterSource vSqlParams = new MapSqlParameterSource();
+//        vSqlParams.addValue("journal_code", pSequenceEcritureComptable.getJournal().getCode());
+//        vSqlParams.addValue("annee", pSequenceEcritureComptable.getAnnee());
+//        vSqlParams.addValue("derniere_valeur", pSequenceEcritureComptable.getDerniereValeur());
+//
+//
+//    }
+
 
     private static String SQLgetSequenceFromJournalAndAnnee;
     public void setSQLgetSequenceFromJournalAndAnnee(String pSQLgetSequenceFromJournalAndAnnee) {
         SQLgetSequenceFromJournalAndAnnee = pSQLgetSequenceFromJournalAndAnnee;
     }
-
     @Override
     public SequenceEcritureComptable getSequenceFromJournalAndAnnee(String code, Integer date) throws NotFoundException{
         NamedParameterJdbcTemplate vJdbcTemplate = new NamedParameterJdbcTemplate(getDataSource(DataSourcesEnum.MYERP));

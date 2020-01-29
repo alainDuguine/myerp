@@ -104,18 +104,18 @@ public interface ComptabiliteManager {
      * @param pId l'id de l'écriture
      */
     void deleteEcritureComptable(Integer pId);
-
-    /**
-     * Met à jour une nouvelle sequence ecriture comptable.
-     *
-     * @param sequenceEcritureComptable -
-     */
-    void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
+//
+//    /**
+//     * Met à jour une nouvelle sequence ecriture comptable.
+//     *
+//     * @param sequenceEcritureComptable -
+//     */
+//    void updateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
 
     /**
      * Insert une nouvelle sequence d'écriture comptable.
      *
      * @param sequenceEcritureComptable -
      */
-    void insertSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
+    void insertOrUpdateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
 }
