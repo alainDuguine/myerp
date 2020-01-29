@@ -1,6 +1,8 @@
 package com.dummy.myerp.consumer;
 
 
+import com.dummy.myerp.consumer.db.AbstractDbConsumer;
+import com.dummy.myerp.consumer.db.DataSourcesEnum;
 import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.NotFoundException;
 
@@ -8,17 +10,22 @@ import com.dummy.myerp.technical.exception.NotFoundException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:com/dummy/myerp/testconsumer/consumer/testContext.xml")
-public class ComptabiliteDaoIT {
+public class ComptabiliteDaoIT extends AbstractDbConsumer {
 
     @Autowired
     private ComptabiliteDaoImpl dao;
@@ -76,7 +83,7 @@ public class ComptabiliteDaoIT {
     }
 
     @Test
-    public void GivenId_whenLoadListLigneEcriture_isNotNull() throws NotFoundException {
+    public void GivenId_whenLoadListLigneEcriture_isNotNull() {
         EcritureComptable ecritureComptable = new EcritureComptable();
         ecritureComptable.setId(-1);
 
@@ -85,12 +92,90 @@ public class ComptabiliteDaoIT {
     }
 
     @Test
-    public void GivenEmptyId_whenLoadListLigneEcriture_isNull() throws NotFoundException {
+    public void GivenEmptyId_whenLoadListLigneEcriture_isNull(){
         EcritureComptable ecritureComptable = new EcritureComptable();
 
         dao.loadListLigneEcriture(ecritureComptable);
         assertThat(ecritureComptable.getListLigneEcriture()).isEmpty();
     }
 
+    @Test(expected = BadSqlGrammarException.class)
+    public void GivenWrongSequenceName_whenGetSequenceValuePostgreSQL_ThrowsBadSqlGrammarException(){
+        Integer id = this.queryGetSequenceValuePostgreSQL(DataSourcesEnum.MYERP, "myerp.comptable_id_seq", Integer.class);
+    }
+
+    @Test
+    public void GivenEcritureComptable_WhenInsertNotFullEcritureComptable_ThrowsException(){
+        //given
+        int nbResult = dao.getListEcritureComptable().size();
+        EcritureComptable ecritureComptable = new EcritureComptable();
+
+        JournalComptable journal = new JournalComptable();
+        ecritureComptable.setJournal(journal);
+        //when
+
+        //then
+        assertThrows(DataIntegrityViolationException.class, () -> dao.insertEcritureComptable(ecritureComptable));
+        assertThat(dao.getListEcritureComptable().size()).isEqualTo(nbResult);
+    }
+
+    @Test
+    public void GivenEcritureComptable_WhenInsertFullEcritureComptable_isInserted(){
+        //given
+        int nbResult = dao.getListEcritureComptable().size();
+        EcritureComptable ecritureComptable = new EcritureComptable();
+        ecritureComptable.setLibelle("TestDao");
+        ecritureComptable.setDate(new Date());
+
+        JournalComptable journal = new JournalComptable();
+        journal.setCode("AC");
+        journal.setLibelle("Achat");
+
+        ecritureComptable.setJournal(journal);
+        ecritureComptable.setReference("AC-2016/00002");
+
+        //when
+        dao.insertEcritureComptable(ecritureComptable);
+
+        //then
+        assertThat(dao.getListEcritureComptable().size()).isEqualTo(nbResult+1);
+        assertThat(ecritureComptable.getId()).isNotNull();
+    }
+
+    @Test
+    public void GivenEcritureComptable_WhenUpdateEcritureComptable_isUpdated() throws NotFoundException {
+        //given
+        Calendar now = Calendar.getInstance();
+
+        String newLibelle = "Changement libelle";
+        EcritureComptable oldEcritureComptable = dao.getEcritureComptable(-1);
+        oldEcritureComptable.setLibelle(newLibelle);
+        oldEcritureComptable.setDate(now.getTime());
+
+        //when
+        dao.updateEcritureComptable(oldEcritureComptable);
+
+        //then
+        EcritureComptable newEcritureComptable = dao.getEcritureComptable(-1);
+        Calendar updatedDate = Calendar.getInstance();
+        updatedDate.setTime(newEcritureComptable.getDate());
+        assertThat(now.get(Calendar.DATE)).isEqualTo(updatedDate.get(Calendar.DATE));
+        assertThat(newEcritureComptable.getLibelle()).isEqualTo(newLibelle);
+    }
+
+    @Test
+    public void GivenIdEcritureComptable_WhenDeleteEcritureComptable_ObjectIsDeletedAndLigneEcritureComptableIsDeleted() throws NotFoundException {
+        // given
+        EcritureComptable ecritureComptable = dao.getEcritureComptable(-1);
+        ecritureComptable.setId(null);
+        dao.insertEcritureComptable(ecritureComptable);
+        int nbEcriture = dao.getListEcritureComptable().size();
+
+        //when
+        dao.deleteEcritureComptable(ecritureComptable.getId());
+
+        //then
+        assertThat(dao.getListEcritureComptable().size()).isEqualTo(nbEcriture-1);
+    }
 
 }
