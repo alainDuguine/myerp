@@ -21,7 +21,9 @@ public class SequenceEcritureComptableTest {
         SequenceEcritureComptable sequenceEcritureComptable = new SequenceEcritureComptable();
         sequenceEcritureComptable.setAnnee(annee);
         sequenceEcritureComptable.setDerniereValeur(derniereValeur);
-        String expectedString = "SequenceEcritureComptable{annee="+annee+", derniereValeur="+derniereValeur+"}";
+        JournalComptable journal = new JournalComptable("AC", "Achat");
+        sequenceEcritureComptable.setJournal(journal);
+        String expectedString = "SequenceEcritureComptable{code journal=AC, annee="+annee+", derniereValeur="+derniereValeur+"}";
         String resultString = sequenceEcritureComptable.toString();
         Assert.assertEquals(expectedString, resultString);
     }
