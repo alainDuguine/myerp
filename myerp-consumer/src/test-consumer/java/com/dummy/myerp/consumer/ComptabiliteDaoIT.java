@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:com/dummy/myerp/testconsumer/consumer/testContext.xml")
 public class ComptabiliteDaoIT extends AbstractDbConsumer {
@@ -103,6 +104,59 @@ public class ComptabiliteDaoIT extends AbstractDbConsumer {
     public void GivenWrongSequenceName_whenGetSequenceValuePostgreSQL_ThrowsBadSqlGrammarException(){
         Integer id = this.queryGetSequenceValuePostgreSQL(DataSourcesEnum.MYERP, "myerp.comptable_id_seq", Integer.class);
     }
+
+    @Test
+    public void GivenSequenceEcritureComptable_withValueEqualsOne_ThenInsertSequence() throws NotFoundException {
+        //given
+        String codeJournal = "AC";
+        int annee = 2020;
+        int derniereValeur = 1;
+        SequenceEcritureComptable sequenceEcritureComptable = new SequenceEcritureComptable();
+        sequenceEcritureComptable.setJournal(new JournalComptable(codeJournal,"Achat"));
+        sequenceEcritureComptable.setAnnee(annee);
+        sequenceEcritureComptable.setDerniereValeur(derniereValeur);
+
+        //when
+        dao.insertOrUpdateSequenceEcritureComptable(sequenceEcritureComptable);
+        SequenceEcritureComptable result = dao.getSequenceFromJournalAndAnnee(codeJournal, annee);
+
+        //then
+        assertThat(result).isNotNull();
+        assertThat(result.getDerniereValeur()).isEqualTo(1);
+        // Suppression de l'enregistrement pour garantir l'intégrité des tests, avec vérification de la suppression
+        dao.deleteSequenceEcritureComptable(codeJournal, annee);
+        assertThrows(NotFoundException.class, () -> dao.getSequenceFromJournalAndAnnee(codeJournal, annee));
+    }
+
+    @Test
+    public void GivenSequenceEcritureComptable_withValueNotEqualsOne_ThenUpdateSequence() throws NotFoundException {
+        //given
+        String codeJournal = "AC";
+        int annee = 2020;
+        int derniereValeur = 1;
+        SequenceEcritureComptable sequenceEcritureComptable = new SequenceEcritureComptable();
+        sequenceEcritureComptable.setJournal(new JournalComptable(codeJournal,"Achat"));
+        sequenceEcritureComptable.setAnnee(annee);
+        sequenceEcritureComptable.setDerniereValeur(derniereValeur);
+        dao.insertOrUpdateSequenceEcritureComptable(sequenceEcritureComptable);
+
+        SequenceEcritureComptable sequenceEcritureComptable1 = new SequenceEcritureComptable();
+        sequenceEcritureComptable1.setJournal(new JournalComptable(codeJournal,"Achat"));
+        sequenceEcritureComptable1.setAnnee(annee);
+        sequenceEcritureComptable1.setDerniereValeur(2);
+
+        dao.insertOrUpdateSequenceEcritureComptable(sequenceEcritureComptable1);
+        SequenceEcritureComptable result = dao.getSequenceFromJournalAndAnnee(codeJournal, annee);
+
+        //then
+        assertThat(result).isNotNull();
+        assertThat(result.getDerniereValeur()).isEqualTo(2);
+
+        // Suppression de l'enregistrement pour garantir l'intégrité des tests, avec vérification de la suppression
+        dao.deleteSequenceEcritureComptable(codeJournal, annee);
+        assertThrows(NotFoundException.class, () -> dao.getSequenceFromJournalAndAnnee(codeJournal, annee));
+    }
+
 
     @Test
     public void GivenEcritureComptable_WhenInsertNotFullEcritureComptable_ThrowsException(){

@@ -43,7 +43,7 @@ public class CompteComptableTest {
     public void getByNumero_ReturnsNull_IfCompteDoesNotExists(){
         List<CompteComptable> compteComptableList = getListCompteComptable();
         CompteComptable compteComptableFromSut = CompteComptable.getByNumero(compteComptableList, 11);
-        Assert.assertEquals(compteComptableFromSut, null);
+        Assert.assertEquals(null, compteComptableFromSut);
     }
 
     public List<CompteComptable> getListCompteComptable(){

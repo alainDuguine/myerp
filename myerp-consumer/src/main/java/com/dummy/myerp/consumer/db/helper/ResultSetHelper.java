@@ -27,7 +27,7 @@ public abstract class ResultSetHelper {
      * Renvoie la valeur de la colonne pColName dans un <code>Integer</code>.
      * Si la colonne vaut <code>null</code>, la méthode renvoie <code>null</code>
      *
-     * @param pRS : Le ResultSet à intéroger
+     * @param pRS : Le ResultSet à interroger
      * @param pColName : Le nom de la colonne dans le retour de la requête SQL
      * @return <code>Integer</code> ou <code>null</code>
      * @throws SQLException sur erreur SQL

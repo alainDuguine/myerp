@@ -20,6 +20,13 @@
                 SELECT * FROM myerp.journal_comptable
             </value>
         </property>
+        <property name="SQLgetSequenceFromJournalAndAnnee">
+            <value>
+                SELECT * FROM myerp.sequence_ecriture_comptable
+                WHERE journal_code = :code
+                AND annee = :date
+            </value>
+        </property>
         <property name="SQLinsertSequenceEcritureComptable">
             <value>
                 INSERT INTO myerp.sequence_ecriture_comptable (
@@ -36,11 +43,11 @@
                 WHERE journal_code = :journal_code AND annee = :annee
             </value>
         </property>
-        <property name="SQLgetSequenceFromJournalAndAnnee">
+        <property name="SQLdeleteSequenceEcritureComptable">
             <value>
-                SELECT * FROM myerp.sequence_ecriture_comptable
-                WHERE journal_code = :code
-                AND annee = :date
+                DELETE FROM myerp.sequence_ecriture_comptable
+                WHERE journal_code = :code_journal
+                AND annee = :annee
             </value>
         </property>
         <property name="SQLgetListEcritureComptable">

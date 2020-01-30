@@ -16,7 +16,7 @@ public abstract class ConsumerHelper {
     /**
      * Méthode de configuration de la classe
      *
-     * @param pDaoProxy     -
+     * @param pDaoProxy -
      */
     public static void configure(DaoProxy pDaoProxy) {
         daoProxy = pDaoProxy;
