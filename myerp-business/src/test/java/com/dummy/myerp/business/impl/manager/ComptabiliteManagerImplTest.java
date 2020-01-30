@@ -12,19 +12,22 @@ import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.NotFoundException;
 
 import com.dummy.myerp.technical.exception.FunctionalException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.Before;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.MockitoJUnitRunner;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static org.junit.Assert.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
 
     @InjectMocks
@@ -40,7 +43,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
 
     private EcritureComptable vEcritureComptable;
 
-    @BeforeEach
+    @Before
     public void initEcritureComptable(){
         vEcritureComptable = new EcritureComptable();
         vEcritureComptable.setJournal(new JournalComptable("AC", "Achat"));
@@ -104,7 +107,7 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
         Exception exception = assertThrows(FunctionalException.class, () -> manager.checkEcritureComptableUnit(vEcritureComptable));
 
         assertThat("Le numéro de séquence de l'écriture " + wrongSequence + " ne correspond pas à la dernière séquence du journal "
-                + String.format("%05d",sequenceMock.getDerniereValeur()+1))
+                + String.format("%05d",sequenceMock.getDerniereValeur()))
                 .isEqualTo(exception.getMessage());
     }
 
@@ -114,7 +117,8 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(vEcritureComptable.getDate());
         SequenceEcritureComptable sequenceMock = new SequenceEcritureComptable(calendar.get(Calendar.YEAR),12);
-        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willReturn(sequenceMock);
+        SequenceEcritureComptable sequenceMockAfterReferenceAdded = new SequenceEcritureComptable(calendar.get(Calendar.YEAR),13);
+        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willReturn(sequenceMock,sequenceMockAfterReferenceAdded);
 
         manager.addReference(vEcritureComptable);
         manager.checkEcritureComptableUnit(vEcritureComptable);
@@ -171,7 +175,6 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
         EcritureComptable ecritureComptable = new EcritureComptable();
         ecritureComptable.setId(1);
         ecritureComptable.setReference("AA-2015/00001");
-        given(comptabiliteDao.getEcritureComptableByRef(anyString())).willReturn(ecritureComptable);
 
         manager.addReference(vEcritureComptable);
         assertThrows(FunctionalException.class, () -> manager.checkEcritureComptable(vEcritureComptable));
@@ -184,7 +187,8 @@ public class ComptabiliteManagerImplTest extends AbstractBusinessManager{
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(vEcritureComptable.getDate());
         SequenceEcritureComptable sequenceMock = new SequenceEcritureComptable(calendar.get(Calendar.YEAR),12);
-        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willReturn(sequenceMock);
+        SequenceEcritureComptable sequenceMockAfterReferenceAdded = new SequenceEcritureComptable(calendar.get(Calendar.YEAR),13);
+        given(comptabiliteDao.getSequenceFromJournalAndAnnee(any(String.class), any(Integer.class))).willReturn(sequenceMock,sequenceMockAfterReferenceAdded);
 
         when(comptabiliteDao.getEcritureComptableByRef(anyString())).thenThrow(NotFoundException.class);
 

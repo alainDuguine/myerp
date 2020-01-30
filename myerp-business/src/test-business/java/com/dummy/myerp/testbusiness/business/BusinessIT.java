@@ -8,6 +8,7 @@ import com.dummy.myerp.model.bean.comptabilite.*;
 import com.dummy.myerp.technical.exception.FunctionalException;
 import com.dummy.myerp.technical.exception.NotFoundException;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,11 +42,18 @@ public class BusinessIT extends AbstractBusinessManager{
         configure(business, dao, transactionManager);
     }
 
+    @After
+    public void reset(){
+        getBusinessProxy().getComptabiliteManager().deleteSequenceEcritureComptable("AC",2020);
+    }
+
     @Test
     public void givenEcritureWithoutRG2_WhenInsertEcritureComptable_NotPersisted(){
         List<EcritureComptable> listEcriture = getBusinessProxy().getComptabiliteManager().getListEcritureComptable();
-        EcritureComptable ecritureComptable = this.getNewGoodEcritureComptable();
+        EcritureComptable ecritureComptable = this.getEcritureComptable();
         ecritureComptable.getListLigneEcriture().get(1).setCredit(new BigDecimal(1300));
+
+        getBusinessProxy().getComptabiliteManager().addReference(ecritureComptable);
 
         //when
         String message = null;
@@ -63,9 +71,10 @@ public class BusinessIT extends AbstractBusinessManager{
     @Test
     public void givenEcritureWithoutRG3_WhenInsertEcritureComptable_NotPersisted(){
         List<EcritureComptable> listEcriture = getBusinessProxy().getComptabiliteManager().getListEcritureComptable();
-        EcritureComptable ecritureComptable = this.getNewGoodEcritureComptable();
+        EcritureComptable ecritureComptable = this.getEcritureComptable();
         ecritureComptable.getListLigneEcriture().get(1).setDebit(new BigDecimal(-1500));
         ecritureComptable.getListLigneEcriture().get(1).setCredit(null);
+        getBusinessProxy().getComptabiliteManager().addReference(ecritureComptable);
 
         //when
         String message = null;
@@ -81,12 +90,45 @@ public class BusinessIT extends AbstractBusinessManager{
     }
 
     @Test
-    @Ignore("Test doesn't pass while no implementation for insertSequence")
-    public void checkRG4_givenEcritureWithNegativeNumber_WhenInsertEcritureComptable_Persisted() throws NotFoundException {
+    public void checkRG4_givenEcritureWithNegativeNumberAndNewSequence_WhenInsertEcriture_Persisted() throws NotFoundException {
         List<EcritureComptable> listEcriture = getBusinessProxy().getComptabiliteManager().getListEcritureComptable();
-        EcritureComptable ecritureComptable = this.getNewGoodEcritureComptable();
+        EcritureComptable ecritureComptable = this.getEcritureComptable();
         ecritureComptable.getListLigneEcriture().get(0).setDebit(new BigDecimal(-1500));
         ecritureComptable.getListLigneEcriture().get(1).setCredit(new BigDecimal(-1500));
+        getBusinessProxy().getComptabiliteManager().addReference(ecritureComptable);
+
+        //when
+        String message = null;
+        try {
+            getBusinessProxy().getComptabiliteManager().insertEcritureComptable(ecritureComptable);
+        } catch (FunctionalException e) {
+            e.getMessage();
+        }finally {
+            //then
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(ecritureComptable.getDate());
+            int yearInRef = calendar.get(Calendar.YEAR);
+            assertThat(getBusinessProxy().getComptabiliteManager().getSequenceFromJournalAndAnnee(ecritureComptable.getJournal().getCode(), yearInRef));
+            assertThat(getBusinessProxy().getComptabiliteManager().getListEcritureComptable().size()).isEqualTo(listEcriture.size()+1);
+
+            getBusinessProxy().getComptabiliteManager().deleteEcritureComptable(ecritureComptable.getId());
+        }
+    }
+
+    @Test
+    public void checkRGG_givenEcritureWithExistingSequence_WhenInsertEcriture_PersistedWithGoodSequenceNumber() throws NotFoundException {
+        List<EcritureComptable> listEcriture = getBusinessProxy().getComptabiliteManager().getListEcritureComptable();
+        EcritureComptable ecriture = listEcriture.get(0);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(ecriture.getDate());
+        SequenceEcritureComptable sequenceRecorded = getBusinessProxy().getComptabiliteManager().getSequenceFromJournalAndAnnee(
+                ecriture.getJournal().getCode(),
+                calendar.get(Calendar.YEAR));
+
+        EcritureComptable ecritureComptable = this.getEcritureComptable();
+        ecritureComptable.setDate(ecriture.getDate());
+        ecritureComptable.setJournal(ecriture.getJournal());
+        getBusinessProxy().getComptabiliteManager().addReference(ecritureComptable);
 
         //when
         String message = null;
@@ -96,15 +138,15 @@ public class BusinessIT extends AbstractBusinessManager{
             message = e.getMessage();
         }finally {
             //then
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(ecritureComptable.getDate());
-            int yearInRef = calendar.get(Calendar.YEAR);
-            assertThat(getBusinessProxy().getComptabiliteManager().getSequenceFromJournalAndAnnee(ecritureComptable.getJournal().getCode(), yearInRef));
+
+            assertThat(getBusinessProxy().getComptabiliteManager().getSequenceFromJournalAndAnnee(ecritureComptable.getJournal().getCode(), calendar.get(Calendar.YEAR))).isNotNull();
             assertThat(getBusinessProxy().getComptabiliteManager().getListEcritureComptable().size()).isEqualTo(listEcriture.size()+1);
+
+            getBusinessProxy().getComptabiliteManager().deleteEcritureComptable(ecritureComptable.getId());
         }
     }
 
-    private EcritureComptable getNewGoodEcritureComptable(){
+    private EcritureComptable getEcritureComptable(){
         List<CompteComptable> listCompte = getBusinessProxy().getComptabiliteManager().getListCompteComptable();
         List<JournalComptable> listJournal = getBusinessProxy().getComptabiliteManager().getListJournalComptable();
         //given
@@ -128,7 +170,6 @@ public class BusinessIT extends AbstractBusinessManager{
         ligne2.setCredit(new BigDecimal(1500));
 
         ecritureComptable.getListLigneEcriture().addAll(Arrays.asList(ligne1,ligne2));
-        getBusinessProxy().getComptabiliteManager().addReference(ecritureComptable);
 
         return ecritureComptable;
     }

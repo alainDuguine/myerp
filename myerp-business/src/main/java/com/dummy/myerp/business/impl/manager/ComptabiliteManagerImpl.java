@@ -167,7 +167,11 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                         "La référence de l'écriture " + referenceSplit[1] + " ne correspond pas à l'année de l'écriture " + yearInRef
                 );
             }
-            int newSequence = this.getNextSequenceFromEcriture(pEcritureComptable, calendar.get(Calendar.YEAR));
+            int newSequence = this.getNextSequenceFromEcriture(pEcritureComptable, calendar.get(Calendar.YEAR))-1;
+            if(newSequence == 0){
+                newSequence = 1;
+            }
+
             // On formate la séquence sur 5 chiffres
             String newSequenceWithLeadingZeros = String.format("%05d", newSequence);
             if (!referenceSplit[2].equals(newSequenceWithLeadingZeros)){
@@ -278,6 +282,18 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
         TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
         try {
             getDaoProxy().getComptabiliteDao().deleteEcritureComptable(pId);
+            getTransactionManager().commitMyERP(vTS);
+            vTS = null;
+        } finally {
+            getTransactionManager().rollbackMyERP(vTS);
+        }
+    }
+
+    @Override
+    public void deleteSequenceEcritureComptable(String codeJournal, int annee) {
+        TransactionStatus vTS = getTransactionManager().beginTransactionMyERP();
+        try {
+            getDaoProxy().getComptabiliteDao().deleteSequenceEcritureComptable(codeJournal,annee);
             getTransactionManager().commitMyERP(vTS);
             vTS = null;
         } finally {

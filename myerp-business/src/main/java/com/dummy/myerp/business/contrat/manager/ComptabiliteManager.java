@@ -118,4 +118,12 @@ public interface ComptabiliteManager {
      * @param sequenceEcritureComptable -
      */
     void insertOrUpdateSequenceEcritureComptable(SequenceEcritureComptable sequenceEcritureComptable);
+
+    /**
+     * Supprime la séquence d'écriture comptable d'id {codeJournal, annnee}
+     *
+     * @param codeJournal -
+     * @param annee -
+     */
+    void deleteSequenceEcritureComptable(String codeJournal, int annee);
 }
