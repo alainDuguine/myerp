@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:/com/dummy/myerp/testbusiness/business/testContext.xml")
@@ -144,6 +145,50 @@ public class BusinessIT extends AbstractBusinessManager{
 
             getBusinessProxy().getComptabiliteManager().deleteEcritureComptable(ecritureComptable.getId());
         }
+    }
+
+    @Test
+    public void givenEmptyEcritureComptable_WhenUpdate_ThrowFunctionalException() throws FunctionalException {
+        //given
+        List<EcritureComptable> listEcriture = getBusinessProxy().getComptabiliteManager().getListEcritureComptable();
+        EcritureComptable ecriture = listEcriture.get(0);
+        ecriture.setReference("");
+
+        //then
+        assertThrows(FunctionalException.class, () -> getBusinessProxy().getComptabiliteManager().updateEcritureComptable(ecriture));
+    }
+
+    @Test
+    public void givenUpdatedEcritureComptable_WhenUpdate_DoUpdate() throws FunctionalException, NotFoundException {
+        //given
+        List<EcritureComptable> listEcriture = getBusinessProxy().getComptabiliteManager().getListEcritureComptable();
+        EcritureComptable ecriture = listEcriture.get(0);
+        String oldLibelle = ecriture.getLibelle();
+        String newLibelle = "Integration Test Update";
+        String ref = ecriture.getReference();
+        ecriture.setLibelle(newLibelle);
+
+        //then
+        getBusinessProxy().getComptabiliteManager().updateEcritureComptable(ecriture);
+        assertThat(dao.getComptabiliteDao().getEcritureComptableByRef(ref).getLibelle()).isEqualTo(newLibelle);
+
+        // reinitialisation du champ
+        ecriture.setLibelle(oldLibelle);
+        getBusinessProxy().getComptabiliteManager().updateEcritureComptable(ecriture);
+    }
+
+    @Test
+    public void checkRG6_givenExistingReferenceToEcritureComptable_WhenUpdate_ThrowsFunctionalException() throws FunctionalException, NotFoundException {
+        //given
+        List<EcritureComptable> listEcriture = getBusinessProxy().getComptabiliteManager().getListEcritureComptable();
+        EcritureComptable ecriture = listEcriture.get(0);
+        ecriture.getJournal().setCode(listEcriture.get(1).getJournal().getCode());
+        ecriture.setReference(listEcriture.get(1).getReference());
+
+        //then
+        Exception exception = assertThrows(FunctionalException.class, () -> getBusinessProxy().getComptabiliteManager().updateEcritureComptable(ecriture));
+        assertThat("Une autre écriture comptable existe déjà avec la même référence.").isEqualTo(exception.getMessage());
+        assertThat(getBusinessProxy().getComptabiliteManager().getListEcritureComptable().size()).isEqualTo(listEcriture.size());
     }
 
     private EcritureComptable getEcritureComptable(){

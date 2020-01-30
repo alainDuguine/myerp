@@ -193,6 +193,9 @@ public class ComptabiliteDaoIT extends AbstractDbConsumer {
         //then
         assertThat(dao.getListEcritureComptable().size()).isEqualTo(nbResult+1);
         assertThat(ecritureComptable.getId()).isNotNull();
+
+        //suppression de l'enregistrement pour garantir l'intégrité des tests
+        dao.deleteEcritureComptable(ecritureComptable.getId());
     }
 
     @Test
@@ -202,6 +205,7 @@ public class ComptabiliteDaoIT extends AbstractDbConsumer {
 
         String newLibelle = "Changement libelle";
         EcritureComptable oldEcritureComptable = dao.getEcritureComptable(-1);
+        String oldLibelle = oldEcritureComptable.getLibelle();
         oldEcritureComptable.setLibelle(newLibelle);
         oldEcritureComptable.setDate(now.getTime());
 
@@ -214,6 +218,9 @@ public class ComptabiliteDaoIT extends AbstractDbConsumer {
         updatedDate.setTime(newEcritureComptable.getDate());
         assertThat(now.get(Calendar.DATE)).isEqualTo(updatedDate.get(Calendar.DATE));
         assertThat(newEcritureComptable.getLibelle()).isEqualTo(newLibelle);
+
+        oldEcritureComptable.setLibelle(oldLibelle);
+        dao.updateEcritureComptable(oldEcritureComptable);
     }
 
     @Test

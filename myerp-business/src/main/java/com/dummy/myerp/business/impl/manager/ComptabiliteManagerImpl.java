@@ -167,16 +167,18 @@ public class ComptabiliteManagerImpl extends AbstractBusinessManager implements 
                         "La référence de l'écriture " + referenceSplit[1] + " ne correspond pas à l'année de l'écriture " + yearInRef
                 );
             }
-            int newSequence = this.getNextSequenceFromEcriture(pEcritureComptable, calendar.get(Calendar.YEAR))-1;
-            if(newSequence == 0){
-                newSequence = 1;
-            }
+            if (pEcritureComptable.getId() == null) {
+                int newSequence = this.getNextSequenceFromEcriture(pEcritureComptable, calendar.get(Calendar.YEAR))-1;
+                if(newSequence == 0){
+                    newSequence = 1;
+                }
 
-            // On formate la séquence sur 5 chiffres
-            String newSequenceWithLeadingZeros = String.format("%05d", newSequence);
-            if (!referenceSplit[2].equals(newSequenceWithLeadingZeros)){
-                throw new FunctionalException(
-                        "Le numéro de séquence de l'écriture " + referenceSplit[2] + " ne correspond pas à la dernière séquence du journal " + newSequenceWithLeadingZeros);
+                // On formate la séquence sur 5 chiffres
+                String newSequenceWithLeadingZeros = String.format("%05d", newSequence);
+                if (!referenceSplit[2].equals(newSequenceWithLeadingZeros)){
+                    throw new FunctionalException(
+                            "Le numéro de séquence de l'écriture " + referenceSplit[2] + " ne correspond pas à la dernière séquence du journal " + newSequenceWithLeadingZeros);
+                }
             }
         }else{
             throw new FunctionalException(
