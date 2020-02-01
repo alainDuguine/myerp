@@ -16,7 +16,7 @@ public class ComptabiliteManagerImplTest {
     private ComptabiliteManagerImpl manager = new ComptabiliteManagerImpl();
 
 
-    @Test
+    @Test(expected = FunctionalException.class)
     public void checkEcritureComptableUnit() throws Exception {
         EcritureComptable vEcritureComptable;
         vEcritureComptable = new EcritureComptable();
